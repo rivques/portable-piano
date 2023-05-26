@@ -118,6 +118,13 @@ array[1] = 69;
 array[2] = 72;
 array[3] = 77;
 }
+void gotTouch3(){
+  // G major MIDI chord
+  array[0] = 55;
+  array[1] = 59;
+  array[2] = 62;
+  array[3] = 67;
+}
 
 void setup() {
   pinMode(LED, OUTPUT);
@@ -128,8 +135,9 @@ void setup() {
   //to use it with Hairless-midiserial, uncomment below
   // Serial.begin(115200);
   int threshold = 40;
-  touchAttachInterrupt(T2, gotTouch1, threshold);
-  touchAttachInterrupt(T3, gotTouch2, threshold);
+  touchAttachInterrupt(T9, gotTouch1, threshold); // pin 35
+  touchAttachInterrupt(T3, gotTouch2, threshold); // pin 15
+  touchAttachInterrupt(T4, gotTouch3, threshold); // pin 13
 
   for(unsigned int i = 0; i < MAX_POLY; i++){
     voices[i].env.setADLevels(ATTACK_LEVEL,DECAY_LEVEL);

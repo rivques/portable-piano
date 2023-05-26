@@ -9,13 +9,16 @@
 #include <mozzi_midi.h>
 #include <ADSR.h>
 #include <tables/saw512_int8.h>
+#include <tables/triangle512_int8.h>
+#include <tables/sin512_int8.h>
+#include <tables/square_no_alias512_int8.h>
 
 #define CONTROL_RATE 256
 
 //set maximum number of polyphony
 #define MAX_POLY 6
 #define OSC_NUM_CELLS 512
-#define WAVE_DATA SAW512_DATA
+#define WAVE_DATA SAW512_DATA 
 
 //Envelope controllers
 #define ATTACK 22
@@ -36,8 +39,16 @@ struct Voice{
 Voice voices[MAX_POLY];
 
 //optional midi monitor
-#define LED 2
+#define LED 35
+#define NUM_KEYS 12
+#define NUM_BUILTIN_TOUCH 10
+#define NOTE_VELOCITY 127
 
+#define BUILTIN_TOUCH_THRESHOLD 40
+#define ADDL_TOUCH_THRESHOLD 40
+const byte builtinTouchPins[NUM_BUILTIN_TOUCH] = {4, 2, 15, 13, 12, 14, 27, 33, 32};
+bool keyStates[NUM_KEYS] = {0};
+byte keyNotes[NUM_KEYS] = {60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71}; // MIDI note numbers
 
 void HandleNoteOn(byte channel, byte note, byte velocity) {
   if (velocity > 0) {
@@ -97,48 +108,9 @@ void HandleControlChange(byte channel, byte control, byte value) {
 
 }
 
-const unsigned long interval = 1000;  // Interval between array elements in milliseconds
-unsigned long previousMillis = 0;    // Stores the last time the array was updated
-
-int array[] = {48, 52, 55, 60};       // Example array
-int arraySize = sizeof(array) / sizeof(array[0]); // Size of the array
-
-int currentIndex = 0;   // Index of the current element being processed
-
-void gotTouch1(){
- array[0] = 48;
-array[1] = 52;
-array[2] = 55;
-array[3] = 60;
-}
-
-void gotTouch2(){
- array[0] = 65;
-array[1] = 69;
-array[2] = 72;
-array[3] = 77;
-}
-void gotTouch3(){
-  // G major MIDI chord
-  array[0] = 55;
-  array[1] = 59;
-  array[2] = 62;
-  array[3] = 67;
-}
-
 void setup() {
   pinMode(LED, OUTPUT);
-
-  // Initiate MIDI communications, listen to all channels (not needed with Teensy usbMIDI)
-  // usbMIDI.begin(MIDI_CHANNEL_OMNI);
-
-  //to use it with Hairless-midiserial, uncomment below
   // Serial.begin(115200);
-  int threshold = 40;
-  touchAttachInterrupt(T9, gotTouch1, threshold); // pin 35
-  touchAttachInterrupt(T3, gotTouch2, threshold); // pin 15
-  touchAttachInterrupt(T4, gotTouch3, threshold); // pin 13
-
   for(unsigned int i = 0; i < MAX_POLY; i++){
     voices[i].env.setADLevels(ATTACK_LEVEL,DECAY_LEVEL);
     voices[i].env.setTimes(ATTACK,DECAY,SUSTAIN,RELEASE);
@@ -151,24 +123,19 @@ void setup() {
 
 
 void updateControl(){
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= interval) {
-    // Update the previousMillis with the current time
-    previousMillis = currentMillis;
-
-    // Process the current element
-    int currentElement = array[currentIndex];
-    if(currentIndex == 0){
-      for(int i = 0; i<arraySize; i++){
-        HandleNoteOff(i, array[i], 80);
+  // do builtin captouch
+  for(int i = 0; i < 10; i++){
+    bool noteState = touchRead(builtinTouchPins[i]) < BUILTIN_TOUCH_THRESHOLD;
+    if(noteState != keyStates[i]){
+      keyStates[i] = noteState;
+      if(noteState){
+        HandleNoteOn(1, keyNotes[i], NOTE_VELOCITY);
+      } else {
+        HandleNoteOff(1, keyNotes[i], NOTE_VELOCITY);
       }
     }
-    
-
-    // Move to the next element
-    currentIndex = (currentIndex + 1) % arraySize;
-    HandleNoteOn(currentIndex, array[currentIndex], 80);
   }
+  // synth stuff
   for(unsigned int i = 0; i < MAX_POLY; i++){
     voices[i].env.update();
   }

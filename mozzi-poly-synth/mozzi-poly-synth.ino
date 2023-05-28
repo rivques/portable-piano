@@ -40,15 +40,15 @@ Voice voices[MAX_POLY];
 
 //optional midi monitor
 #define LED 35
-#define NUM_KEYS 12
+#define NUM_KEYS 13
 #define NUM_BUILTIN_TOUCH 10
 #define NOTE_VELOCITY 127
 
 #define BUILTIN_TOUCH_THRESHOLD 40
 #define ADDL_TOUCH_THRESHOLD 40
-const byte builtinTouchPins[NUM_BUILTIN_TOUCH] = {4, 2, 15, 13, 12, 14, 27, 33, 32};
+const byte builtinTouchPins[NUM_BUILTIN_TOUCH] = {4, 0, 2, 15, 13, 12, 14, 27, 33, 32};
 bool keyStates[NUM_KEYS] = {0};
-byte keyNotes[NUM_KEYS] = {60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71}; // MIDI note numbers
+byte keyNotes[NUM_KEYS] = {60, 0, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71}; // MIDI note numbers
 
 void HandleNoteOn(byte channel, byte note, byte velocity) {
   if (velocity > 0) {

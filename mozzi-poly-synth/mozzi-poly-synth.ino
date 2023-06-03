@@ -1,7 +1,16 @@
 
 /*
- *  Poly Synth for Arduino and Mozzi *
- *  @jidagraphy
+ * Capacitive touch keyboard for ESP32 with polyphonic synth
+ * By rivques, 2023
+ * https://github.com/rivques/portable-piano/
+ * Neat features:
+ * 13-key keyboard using 8 of the ESP32's built-in capacitive touch pins and 5 external pins (put a 1Mohm resistor between each send/recieve pair)
+ * Uses Mozzi for sound synthesis
+ * Supports polyphony (up to 6 voices, configurable)
+ * Based on https://github.com/jidagraphy/mozzi-poly-synth
+ * Utilizes multiprocessing to allow for uninterrupted audio playback while reading capacitive touch inputs
+ * Very configurable, just flip the MODE switch and you can change waveform, envelope, and octave
+ * If the capsense is wonky, press C# to recalibrate them
  */
 
 #include <MozziGuts.h>

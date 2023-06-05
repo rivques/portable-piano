@@ -69,7 +69,7 @@ bool keyStates[NUM_REAL_KEYS] = {0};
 const byte addlTouchPins[NUM_ADDL_TOUCH][2] = {{23, 36}, {22, 34}, {21, 35}, {19, 17}, {18, 16}};
 unsigned long addlTouchBaselines[NUM_ADDL_TOUCH] = {0}; // TODO: update w/ empirical values
 
-const byte keyMapping[NUM_REAL_KEYS] = {0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}; // maps input pins to piano key
+const byte keyMapping[NUM_REAL_KEYS] = {3, 0, 13, 14, 4, 5, 11, 8, 9, 12, 10, 7, 6}; // maps input pins to piano key
 // piano key is array index starting from 0
 // input pin is the value at that index, where 0-9 are the built-in touch pins
 // and 10-14 are the external pins, as ordered in builtinTouchPins and addlTouchPins, respectively
@@ -591,6 +591,10 @@ void handleConfig(int key){
         break;
     }
   }
+  // blink the LED to indicate we got the key
+  digitalWrite(LED, HIGH);
+  delay(100);
+  digitalWrite(LED, LOW);
 }
 
 int updateAudio(){

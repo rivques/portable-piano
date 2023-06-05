@@ -63,11 +63,17 @@ int firstKey = 0;
 #define BUILTIN_TOUCH_THRESHOLD 40
 #define ADDL_TOUCH_THRESHOLD 20
 const byte builtinTouchPins[NUM_BUILTIN_TOUCH] = {4, 0, 2, 15, 13, 12, 14, 27, 33, 32};
-bool keyStates[NUM_KEYS] = {0};
+bool keyStates[NUM_REAL_KEYS] = {0};
 
 #define NUM_ADDL_TOUCH 5
-const byte addlTouchPins[NUM_ADDL_TOUCH][2] = {{23, 36}, {22, 39}, {21, 34}, {19, 35}, {18, 26}};
+const byte addlTouchPins[NUM_ADDL_TOUCH][2] = {{23, 36}, {22, 34}, {21, 35}, {19, 17}, {18, 16}};
 unsigned long addlTouchBaselines[NUM_ADDL_TOUCH] = {0}; // TODO: update w/ empirical values
+
+const byte keyMapping[NUM_REAL_KEYS] = {0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}; // maps input pins to piano key
+// piano key is array index starting from 0
+// input pin is the value at that index, where 0-9 are the built-in touch pins
+// and 10-14 are the external pins, as ordered in builtinTouchPins and addlTouchPins, respectively
+// this way we can wire the keyboard however is physically convenient and have it work
 
 unsigned long readCapacitiveExternal(byte sendPin, byte recievePin){
   // this is for non-builtin pins, so no touchRead here
@@ -83,58 +89,58 @@ unsigned long readCapacitiveExternal(byte sendPin, byte recievePin){
   return duration;
 }
 
-const byte CHROMATIC_SCALE_C1[NUM_KEYS] = {24, 0, 0, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36};
-const byte CHROMATIC_SCALE_C2[NUM_KEYS] = {36, 0, 0, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48};
-const byte CHROMATIC_SCALE_C3[NUM_KEYS] = {48, 0, 0, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60};
-const byte CHROMATIC_SCALE_C4[NUM_KEYS] = {60, 0, 0, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72};
-const byte CHROMATIC_SCALE_C5[NUM_KEYS] = {72, 0, 0, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84};
-const byte CHROMATIC_SCALE_C6[NUM_KEYS] = {84, 0, 0, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96};
-const byte CHROMATIC_SCALE_C7[NUM_KEYS] = {96, 0, 0, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108};
+const byte CHROMATIC_SCALE_C1[NUM_REAL_KEYS] = {24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36};
+const byte CHROMATIC_SCALE_C2[NUM_REAL_KEYS] = {36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48};
+const byte CHROMATIC_SCALE_C3[NUM_REAL_KEYS] = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60};
+const byte CHROMATIC_SCALE_C4[NUM_REAL_KEYS] = {60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72};
+const byte CHROMATIC_SCALE_C5[NUM_REAL_KEYS] = {72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84};
+const byte CHROMATIC_SCALE_C6[NUM_REAL_KEYS] = {84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96};
+const byte CHROMATIC_SCALE_C7[NUM_REAL_KEYS] = {96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108};
 
 byte currentOctave = 4;
 
-byte keyNotes[NUM_KEYS];
+byte keyNotes[NUM_REAL_KEYS];
 
 void setOctave(byte octave) {
   // if it's ugly, but it works, it's not ugly
   switch(octave){
     case 1:
-      for (int i = 0; i < NUM_KEYS; i++) {
+      for (int i = 0; i < NUM_REAL_KEYS; i++) {
         keyNotes[i] = CHROMATIC_SCALE_C1[i];
       }
       break;
     case 2:
-      for (int i = 0; i < NUM_KEYS; i++) {
+      for (int i = 0; i < NUM_REAL_KEYS; i++) {
         keyNotes[i] = CHROMATIC_SCALE_C2[i];
       }
       break;
     case 3:
-      for (int i = 0; i < NUM_KEYS; i++) {
+      for (int i = 0; i < NUM_REAL_KEYS; i++) {
         keyNotes[i] = CHROMATIC_SCALE_C3[i];
       }
       break;
     case 4:
-      for (int i = 0; i < NUM_KEYS; i++) {
+      for (int i = 0; i < NUM_REAL_KEYS; i++) {
         keyNotes[i] = CHROMATIC_SCALE_C4[i];
       }
       break;
     case 5:
-      for (int i = 0; i < NUM_KEYS; i++) {
+      for (int i = 0; i < NUM_REAL_KEYS; i++) {
         keyNotes[i] = CHROMATIC_SCALE_C5[i];
       }
       break;
     case 6:
-      for (int i = 0; i < NUM_KEYS; i++) {
+      for (int i = 0; i < NUM_REAL_KEYS; i++) {
         keyNotes[i] = CHROMATIC_SCALE_C6[i];
       }
       break;
     case 7:
-      for (int i = 0; i < NUM_KEYS; i++) {
+      for (int i = 0; i < NUM_REAL_KEYS; i++) {
         keyNotes[i] = CHROMATIC_SCALE_C7[i];
       }
       break;
     default:
-      for (int i = 0; i < NUM_KEYS; i++) {
+      for (int i = 0; i < NUM_REAL_KEYS; i++) {
         keyNotes[i] = CHROMATIC_SCALE_C4[i];
       }
       break;
@@ -223,7 +229,7 @@ void setup() {
 
   // send the scale to serial
   Serial.print("Scale: ");
-  for(int i = 0; i < NUM_KEYS; i++){
+  for(int i = 0; i < NUM_REAL_KEYS; i++){
     Serial.print(keyNotes[i]);
     Serial.print(" ");
   }
@@ -318,7 +324,24 @@ void calibrateTouches(){
       }
     }
     addlTouchBaselines[i] = lowest;
+    // log the readings
+    Serial.print("Readings for pin ");
+    Serial.print(addlTouchPins[i][0]);
+    Serial.print(": ");
+    for(int j = 0; j < NUM_RECAL_SENSES; j++){
+      Serial.print(readings[j]);
+      Serial.print("\t");
+    }
+    Serial.print(", lowest: ");
+    Serial.println(lowest);
   }
+  // log new baselines
+  Serial.print("New baselines: ");
+  for(int i = 0; i < NUM_ADDL_TOUCH; i++){
+    Serial.print(addlTouchBaselines[i]);
+    Serial.print("\t");
+  }
+  Serial.println();
   // hold the LED for a second to indicate we're done
   digitalWrite(LED, HIGH);
   delay(1000);
@@ -353,9 +376,9 @@ void updateControl(){
         newKeyStates[i + NUM_BUILTIN_TOUCH] = noteState;
       }
     }
-    for(int i = 0; i < NUM_KEYS; i++){
-      if(newKeyStates[i] != keyStates[i] && lastKeyStates[i] == newKeyStates[i]){
-        if(newKeyStates[i]){
+    for(int i = 0; i < NUM_REAL_KEYS; i++){
+      if(newKeyStates[keyMapping[i]] != keyStates[i] && lastKeyStates[keyMapping[i]] == newKeyStates[keyMapping[i]]){
+        if(newKeyStates[keyMapping[i]]){
           if(digitalRead(MODE_SWITCH)){
             onSecondKey = false; // don't contiue a config across mode switches
             HandleNoteOn(0, keyNotes[i], NOTE_VELOCITY);
@@ -365,7 +388,7 @@ void updateControl(){
         }else{
           HandleNoteOff(0, keyNotes[i], NOTE_VELOCITY);
         }
-        keyStates[i] = newKeyStates[i];
+        keyStates[i] = newKeyStates[keyMapping[i]];
       }
     }
     // write current states to last states
@@ -378,12 +401,16 @@ void updateControl(){
     //   Serial.print(" ");
     // }
     // Serial.println();
-    // Serial.print("Raw touch values: ");
-    // for(int i = 0; i < NUM_KEYS; i++){
-    //   Serial.print(rawTouchValues[i]);
-    //   Serial.print(" ");
-    // }
-    // Serial.println();
+    if(digitalRead(MODE_SWITCH)){
+      Serial.print("Values: ");
+      for(int i = 0; i < NUM_REAL_KEYS; i++){
+      Serial.print(keyStates[i]);
+      Serial.print(">");
+      Serial.print(rawTouchValues[keyMapping[i]]);
+      Serial.print("\t");
+      }
+      Serial.println();
+    }
     needUpdateStates = false;
   }
   // synth stuff
@@ -436,6 +463,7 @@ void handleConfig(int key){
         setOctave(currentOctave);
         Serial.print("Octave set to ");
         Serial.println(currentOctave);
+        break;
       case 5:
         /*
         sine: 0

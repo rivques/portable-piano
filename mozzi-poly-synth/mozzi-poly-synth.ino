@@ -441,8 +441,6 @@ const byte levelMap[NUM_REAL_KEYS] = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 
 void handleConfig(int key){
   // RUNS ON MAIN CORE
   // handle a key being pressed in config mode
-  // first, correct the inKey number to skip the first and second key
-  key = key < 1 ? key : key -2;
   // log it
   Serial.print("Key ");
   Serial.print(key);
